@@ -1,0 +1,293 @@
+/* ==========================================================================
+   ProCRM Custom Stylesheet
+   Clean, modern, and readable layout using Bootstrap 5 foundations
+   ========================================================================== */
+
+:root {
+    --crm-sidebar-width: 250px;
+    --crm-sidebar-bg: #0f172a;
+    --crm-sidebar-text: #cbd5e1;
+    --crm-sidebar-active: #2563eb;
+    --crm-sidebar-hover: #1e293b;
+    --crm-body-bg: #f8fafc;
+    --crm-card-border: #e2e8f0;
+}
+
+body {
+    background-color: var(--crm-body-bg);
+    color: #334155;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+}
+
+/* --------------------------------------------------------------------------
+   Layout Structure
+   -------------------------------------------------------------------------- */
+.crm-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.crm-sidebar {
+    width: var(--crm-sidebar-width);
+    background-color: var(--crm-sidebar-bg);
+    color: var(--crm-sidebar-text);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.25s ease-in-out;
+    z-index: 1030;
+}
+
+.crm-sidebar-brand {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-decoration: none;
+}
+
+.crm-sidebar-brand:hover {
+    color: #60a5fa;
+}
+
+.crm-sidebar-nav {
+    padding: 1rem 0.75rem;
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+
+.crm-nav-label {
+    padding: 0.5rem 0.75rem 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+}
+
+.crm-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    color: #94a3b8;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-size: 0.925rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    transition: background 0.15s, color 0.15s;
+}
+
+.crm-nav-link:hover {
+    background-color: var(--crm-sidebar-hover);
+    color: #ffffff;
+}
+
+.crm-nav-link.active {
+    background-color: var(--crm-sidebar-active);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.crm-nav-link i {
+    font-size: 1.15rem;
+}
+
+.crm-sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.crm-main {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.crm-topbar {
+    background: #ffffff;
+    border-bottom: 1px solid var(--crm-card-border);
+    padding: 0.75rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.crm-content {
+    padding: 1.75rem;
+    flex: 1 1 auto;
+}
+
+/* --------------------------------------------------------------------------
+   Cards & Metrics
+   -------------------------------------------------------------------------- */
+.crm-card {
+    background: #ffffff;
+    border: 1px solid var(--crm-card-border);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    margin-bottom: 1.5rem;
+}
+
+.crm-card-header {
+    background: #ffffff;
+    border-bottom: 1px solid var(--crm-card-border);
+    padding: 1rem 1.25rem;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.crm-stat-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.crm-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
+}
+
+.crm-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Tables
+   -------------------------------------------------------------------------- */
+.crm-table {
+    margin-bottom: 0;
+}
+
+.crm-table thead th {
+    background-color: #f8fafc;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    border-bottom: 1px solid var(--crm-card-border);
+    padding: 0.85rem 1rem;
+}
+
+.crm-table tbody td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+}
+
+.crm-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* --------------------------------------------------------------------------
+   Activity Timeline
+   -------------------------------------------------------------------------- */
+.activity-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.activity-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 2px;
+    background-color: #e2e8f0;
+}
+
+.activity-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.activity-item:last-child {
+    margin-bottom: 0;
+}
+
+.activity-badge {
+    position: absolute;
+    left: -2rem;
+    top: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 2px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+/* --------------------------------------------------------------------------
+   Badges & Labels
+   -------------------------------------------------------------------------- */
+.badge-pill {
+    padding: 0.35em 0.65em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 50rem;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+    .crm-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -100%;
+    }
+
+    .crm-sidebar.show {
+        left: 0;
+    }
+
+    .crm-sidebar-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1025;
+        display: none;
+    }
+
+    .crm-sidebar-backdrop.show {
+        display: block;
+    }
+
+    .crm-content {
+        padding: 1rem;
+    }
+
+    .crm-topbar {
+        padding: 0.75rem 1rem;
+    }
+}

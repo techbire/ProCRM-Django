@@ -1,0 +1,104 @@
+{% extends 'crm/base.html' %}
+
+{% block title %}{{ title }} - ProCRM{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'activity_list' %}" class="text-decoration-none">Activities</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">{{ title }}</h3>
+                <p class="text-muted small mb-0">Record a phone call, meeting, email exchange, or client note.</p>
+            </div>
+            <a href="{% url 'activity_list' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Cancel
+            </a>
+        </div>
+
+        <div class="crm-card">
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.customer.id_for_label }}" class="form-label fw-semibold">
+                                Customer <span class="text-danger">*</span>
+                            </label>
+                            {{ form.customer }}
+                            {% if form.customer.errors %}
+                                <div class="text-danger small mt-1">{{ form.customer.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.lead.id_for_label }}" class="form-label fw-semibold">
+                                Related Lead <span class="text-muted fw-normal">(Optional)</span>
+                            </label>
+                            {{ form.lead }}
+                            {% if form.lead.errors %}
+                                <div class="text-danger small mt-1">{{ form.lead.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.activity_type.id_for_label }}" class="form-label fw-semibold">
+                                Activity Type <span class="text-danger">*</span>
+                            </label>
+                            {{ form.activity_type }}
+                            {% if form.activity_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.activity_type.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.date.id_for_label }}" class="form-label fw-semibold">
+                                Interaction Date & Time <span class="text-danger">*</span>
+                            </label>
+                            {{ form.date }}
+                            {% if form.date.errors %}
+                                <div class="text-danger small mt-1">{{ form.date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.subject.id_for_label }}" class="form-label fw-semibold">
+                            Subject / Topic <span class="text-danger">*</span>
+                        </label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                            <div class="text-danger small mt-1">{{ form.subject.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label fw-semibold">
+                            Detailed Notes <span class="text-danger">*</span>
+                        </label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger small mt-1">{{ form.notes.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-end gap-2 pt-3 border-top">
+                        <a href="{% url 'activity_list' %}" class="btn btn-light border">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 fw-semibold shadow-sm">
+                            <i class="bi bi-check-lg me-1"></i> Save Activity
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

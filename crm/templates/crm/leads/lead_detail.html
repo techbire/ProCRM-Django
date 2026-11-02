@@ -1,0 +1,174 @@
+{% extends 'crm/base.html' %}
+
+{% block title %}{{ lead.name }} - Lead Details{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'lead_list' %}" class="text-decoration-none">Leads</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ lead.name }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <div class="bg-info-subtle text-info-emphasis fw-bold rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 52px; height: 52px; font-size: 1.4rem;">
+            {{ lead.name|make_list|first|upper }}
+        </div>
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h3 class="fw-bold text-dark mb-0">{{ lead.name }}</h3>
+                <span class="badge {{ lead.status_badge_class }} badge-pill">{{ lead.status }}</span>
+            </div>
+            <span class="text-muted small">
+                Source: <strong>{{ lead.source }}</strong> &bull; Created on {{ lead.created_at|date:"M d, Y" }}
+            </span>
+        </div>
+    </div>
+    <div class="mt-3 mt-md-0 d-flex flex-wrap gap-2">
+        {% if lead.status != 'Converted' %}
+            <form method="post" action="{% url 'lead_convert' lead.pk %}" class="d-inline" onsubmit="return confirm('Convert this lead into a Customer?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm">
+                    <i class="bi bi-check2-circle"></i> Convert to Customer
+                </button>
+            </form>
+        {% endif %}
+        <a href="{% url 'lead_update' lead.pk %}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-pencil"></i> Edit Lead
+        </a>
+        <a href="{% url 'lead_delete' lead.pk %}" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-trash"></i> Delete
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Lead Info & Linked Customer -->
+    <div class="col-lg-5">
+        <div class="crm-card mb-4">
+            <div class="crm-card-header">
+                <h6 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-info-circle text-primary me-2"></i>Lead Information
+                </h6>
+            </div>
+            <div class="card-body p-3">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-3">
+                        <span class="text-muted small d-block">Email Address</span>
+                        <a href="mailto:{{ lead.email }}" class="text-decoration-none text-dark fw-semibold">
+                            <i class="bi bi-envelope text-primary me-1"></i>{{ lead.email }}
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <span class="text-muted small d-block">Phone Number</span>
+                        {% if lead.phone %}
+                            <a href="tel:{{ lead.phone }}" class="text-decoration-none text-dark fw-semibold">
+                                <i class="bi bi-telephone text-primary me-1"></i>{{ lead.phone }}
+                            </a>
+                        {% else %}
+                            <span class="text-muted small">Not provided</span>
+                        {% endif %}
+                    </li>
+                    <li class="mb-3">
+                        <span class="text-muted small d-block">Lead Acquisition Source</span>
+                        <span class="badge bg-light text-dark border">{{ lead.source }}</span>
+                    </li>
+                    <li class="mb-3">
+                        <span class="text-muted small d-block">Pipeline Status</span>
+                        <span class="badge {{ lead.status_badge_class }}">{{ lead.status }}</span>
+                    </li>
+                    <li class="mb-3">
+                        <span class="text-muted small d-block">Linked Customer Account</span>
+                        {% if lead.customer %}
+                            <a href="{% url 'customer_detail' lead.customer.pk %}" class="text-primary text-decoration-none fw-semibold">
+                                <i class="bi bi-person-check-fill me-1"></i>{{ lead.customer.name }}
+                                {% if lead.customer.company %}({{ lead.customer.company }}){% endif %}
+                            </a>
+                        {% else %}
+                            <span class="text-muted small">Not linked to existing customer profile</span>
+                        {% endif %}
+                    </li>
+                    <li class="pt-2 border-top">
+                        <span class="text-muted small d-block">Dates</span>
+                        <span class="small text-secondary">
+                            Created: {{ lead.created_at|date:"M d, Y, h:i A" }}<br>
+                            Updated: {{ lead.updated_at|date:"M d, Y, h:i A" }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Notes Card -->
+        <div class="crm-card">
+            <div class="crm-card-header bg-light">
+                <h6 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-sticky text-warning me-2"></i>Lead Notes & Requirements
+                </h6>
+            </div>
+            <div class="card-body p-3">
+                {% if lead.notes %}
+                    <p class="mb-0 text-dark small" style="white-space: pre-line;">{{ lead.notes }}</p>
+                {% else %}
+                    <span class="text-muted small fst-italic">No additional notes recorded for this lead.</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Interaction History for this Lead -->
+    <div class="col-lg-7">
+        <div class="crm-card">
+            <div class="crm-card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-clock-history text-primary"></i>
+                    <h6 class="fw-bold mb-0 text-dark">Interaction History</h6>
+                    <span class="badge bg-light text-dark border ms-1">{{ lead_activities.count }}</span>
+                </div>
+                {% if lead.customer %}
+                    <a href="{% url 'activity_create' %}?customer_id={{ lead.customer.pk }}&lead_id={{ lead.pk }}" class="btn btn-sm btn-outline-primary py-1 px-2 small">
+                        <i class="bi bi-plus"></i> Log Activity
+                    </a>
+                {% endif %}
+            </div>
+            <div class="card-body p-4">
+                {% if lead_activities %}
+                    <div class="activity-timeline">
+                        {% for act in lead_activities %}
+                            <div class="activity-item">
+                                <div class="activity-badge shadow-sm">
+                                    <i class="bi {{ act.icon_class }}"></i>
+                                </div>
+                                <div class="bg-light p-3 rounded-3 border">
+                                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-1">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge {{ act.badge_class }}">{{ act.get_activity_type_display }}</span>
+                                            <strong class="text-dark">{{ act.subject }}</strong>
+                                        </div>
+                                        <span class="text-muted small mt-1 mt-sm-0">
+                                            <i class="bi bi-calendar3 me-1"></i>{{ act.date|date:"M d, Y, h:i A" }}
+                                        </span>
+                                    </div>
+                                    <div class="small text-secondary mb-2">
+                                        Customer: <a href="{% url 'customer_detail' act.customer.pk %}" class="text-primary text-decoration-none fw-semibold">{{ act.customer.name }}</a> &bull;
+                                        Logged by: <span class="fw-semibold">{{ act.created_by.username|default:"System" }}</span>
+                                    </div>
+                                    <p class="mb-0 text-dark small" style="white-space: pre-line;">{{ act.notes }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted small">
+                        <i class="bi bi-chat-left-text fs-4 d-block mb-1"></i>
+                        No specific interaction history for this lead.
+                        {% if not lead.customer %}
+                            <div class="mt-2 text-muted">Convert this lead or link it to a customer to record calls and meetings.</div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

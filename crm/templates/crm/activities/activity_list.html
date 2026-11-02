@@ -1,0 +1,131 @@
+{% extends 'crm/base.html' %}
+
+{% block title %}Activity History - ProCRM{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Activities</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Customer Activity History</h3>
+        <p class="text-muted small mb-0">Chronological audit trail of all phone calls, meetings, emails, and notes ({{ total_count }} total).</p>
+    </div>
+    <div class="mt-3 mt-md-0">
+        <a href="{% url 'activity_create' %}" class="btn btn-primary d-flex align-items-center gap-1 shadow-sm">
+            <i class="bi bi-pencil-square"></i> Log New Activity
+        </a>
+    </div>
+</div>
+
+<!-- Type Filter Chips -->
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a href="{% url 'activity_list' %}{% if query %}?q={{ query }}{% endif %}"
+       class="btn btn-sm {% if not activity_type %}btn-dark{% else %}btn-outline-secondary bg-white{% endif %} rounded-pill px-3">
+        All Types
+    </a>
+    <a href="{% url 'activity_list' %}?type=Call{% if query %}&q={{ query }}{% endif %}"
+       class="btn btn-sm {% if activity_type == 'Call' %}btn-primary{% else %}btn-outline-primary bg-white{% endif %} rounded-pill px-3">
+        <i class="bi bi-telephone-fill me-1"></i> Phone Calls
+    </a>
+    <a href="{% url 'activity_list' %}?type=Meeting{% if query %}&q={{ query }}{% endif %}"
+       class="btn btn-sm {% if activity_type == 'Meeting' %}btn-warning text-dark{% else %}btn-outline-warning text-dark bg-white{% endif %} rounded-pill px-3">
+        <i class="bi bi-calendar-event-fill me-1"></i> Meetings
+    </a>
+    <a href="{% url 'activity_list' %}?type=Email{% if query %}&q={{ query }}{% endif %}"
+       class="btn btn-sm {% if activity_type == 'Email' %}btn-info text-dark{% else %}btn-outline-info text-dark bg-white{% endif %} rounded-pill px-3">
+        <i class="bi bi-envelope-fill me-1"></i> Emails
+    </a>
+    <a href="{% url 'activity_list' %}?type=Note{% if query %}&q={{ query }}{% endif %}"
+       class="btn btn-sm {% if activity_type == 'Note' %}btn-success{% else %}btn-outline-success bg-white{% endif %} rounded-pill px-3">
+        <i class="bi bi-journal-text me-1"></i> Notes
+    </a>
+</div>
+
+<!-- Search Bar -->
+<div class="crm-card p-3 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+        {% if activity_type %}
+            <input type="hidden" name="type" value="{{ activity_type }}">
+        {% endif %}
+        <div class="col-md-9 col-lg-10">
+            <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" placeholder="Search activities by subject, notes, customer, or lead...">
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+            {% if query or activity_type %}
+                <a href="{% url 'activity_list' %}" class="btn btn-outline-secondary" title="Clear Filters">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Activities Timeline Card -->
+<div class="crm-card">
+    <div class="card-body p-4">
+        {% if activities %}
+            <div class="activity-timeline">
+                {% for act in activities %}
+                    <div class="activity-item">
+                        <div class="activity-badge shadow-sm">
+                            <i class="bi {{ act.icon_class }}"></i>
+                        </div>
+                        <div class="bg-light p-3 rounded-3 border">
+                            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge {{ act.badge_class }}">{{ act.get_activity_type_display }}</span>
+                                    <strong class="text-dark">{{ act.subject }}</strong>
+                                </div>
+                                <span class="text-muted small mt-1 mt-sm-0">
+                                    <i class="bi bi-calendar3 me-1"></i>{{ act.date|date:"M d, Y, h:i A" }}
+                                </span>
+                            </div>
+                            <div class="small text-secondary mb-2">
+                                Customer: <a href="{% url 'customer_detail' act.customer.pk %}" class="text-primary text-decoration-none fw-semibold">{{ act.customer.name }}</a>
+                                {% if act.customer.company %}({{ act.customer.company }}){% endif %}
+                                {% if act.lead %}
+                                    &bull; Lead: <a href="{% url 'lead_detail' act.lead.pk %}" class="text-decoration-none text-muted">{{ act.lead.name }}</a>
+                                {% endif %}
+                                &bull; Logged by: <span class="fw-semibold">{{ act.created_by.username|default:"System" }}</span>
+                            </div>
+                            <p class="mb-2 text-dark small" style="white-space: pre-line;">{{ act.notes }}</p>
+
+                            <!-- Delete activity button -->
+                            <form method="post" action="{% url 'activity_delete' act.pk %}" class="d-inline" onsubmit="return confirm('Delete this interaction record?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link text-danger p-0 small text-decoration-none" style="font-size: 0.78rem;">
+                                    <i class="bi bi-trash"></i> Delete Record
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-journal-x display-6 d-block mb-2 text-secondary"></i>
+                {% if query or activity_type %}
+                    <h5>No interactions matching your search</h5>
+                    <p class="small">Try resetting your filters or search terms.</p>
+                    <a href="{% url 'activity_list' %}" class="btn btn-sm btn-outline-secondary">Reset Filters</a>
+                {% else %}
+                    <h5>No activities recorded yet</h5>
+                    <p class="small">Log phone calls, client meetings, follow-up emails, or internal notes.</p>
+                    <a href="{% url 'activity_create' %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-pencil-square"></i> Log First Activity
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

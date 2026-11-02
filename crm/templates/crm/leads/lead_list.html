@@ -1,0 +1,186 @@
+{% extends 'crm/base.html' %}
+
+{% block title %}Sales Leads - ProCRM{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Leads</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Sales Leads Pipeline</h3>
+        <p class="text-muted small mb-0">Track prospect progression from initial inquiry to closed deals.</p>
+    </div>
+    <div class="mt-3 mt-md-0">
+        <a href="{% url 'lead_create' %}" class="btn btn-primary d-flex align-items-center gap-1 shadow-sm">
+            <i class="bi bi-plus-circle-fill"></i> Add New Lead
+        </a>
+    </div>
+</div>
+
+<!-- Status Filter Chips -->
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a href="{% url 'lead_list' %}{% if query %}?q={{ query }}{% endif %}"
+       class="btn btn-sm {% if not status_filter %}btn-dark{% else %}btn-outline-secondary bg-white{% endif %} rounded-pill px-3">
+        All Leads <span class="badge bg-secondary ms-1">{{ status_counts.all }}</span>
+    </a>
+    <a href="{% url 'lead_list' %}?status=New{% if query %}&q={{ query }}{% endif %}"
+       class="btn btn-sm {% if status_filter == 'New' %}btn-secondary{% else %}btn-outline-secondary bg-white{% endif %} rounded-pill px-3">
+        New <span class="badge bg-secondary ms-1">{{ status_counts.New }}</span>
+    </a>
+    <a href="{% url 'lead_list' %}?status=Contacted{% if query %}&q={{ query }}{% endif %}"
+       class="btn btn-sm {% if status_filter == 'Contacted' %}btn-info text-dark{% else %}btn-outline-info text-dark bg-white{% endif %} rounded-pill px-3">
+        Contacted <span class="badge bg-info-subtle text-dark border ms-1">{{ status_counts.Contacted }}</span>
+    </a>
+    <a href="{% url 'lead_list' %}?status=Interested{% if query %}&q={{ query }}{% endif %}"
+       class="btn btn-sm {% if status_filter == 'Interested' %}btn-warning text-dark{% else %}btn-outline-warning text-dark bg-white{% endif %} rounded-pill px-3">
+        Interested <span class="badge bg-warning-subtle text-dark border ms-1">{{ status_counts.Interested }}</span>
+    </a>
+    <a href="{% url 'lead_list' %}?status=Converted{% if query %}&q={{ query }}{% endif %}"
+       class="btn btn-sm {% if status_filter == 'Converted' %}btn-success{% else %}btn-outline-success bg-white{% endif %} rounded-pill px-3">
+        Converted <span class="badge bg-success-subtle text-success border ms-1">{{ status_counts.Converted }}</span>
+    </a>
+    <a href="{% url 'lead_list' %}?status=Lost{% if query %}&q={{ query }}{% endif %}"
+       class="btn btn-sm {% if status_filter == 'Lost' %}btn-danger{% else %}btn-outline-danger bg-white{% endif %} rounded-pill px-3">
+        Lost <span class="badge bg-danger-subtle text-danger border ms-1">{{ status_counts.Lost }}</span>
+    </a>
+</div>
+
+<!-- Search Bar -->
+<div class="crm-card p-3 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+        {% if status_filter %}
+            <input type="hidden" name="status" value="{{ status_filter }}">
+        {% endif %}
+        <div class="col-md-9 col-lg-10">
+            <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" name="q" value="{{ query }}" class="form-control border-start-0" placeholder="Search leads by name, email, phone, source, or notes...">
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+            {% if query or status_filter %}
+                <a href="{% url 'lead_list' %}" class="btn btn-outline-secondary" title="Reset Filters">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Leads Table -->
+<div class="crm-card">
+    <div class="table-responsive">
+        <table class="table crm-table align-middle">
+            <thead>
+                <tr>
+                    <th>Lead Name</th>
+                    <th>Status</th>
+                    <th>Contact Info</th>
+                    <th>Source</th>
+                    <th>Linked Customer</th>
+                    <th>Date Added</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lead in leads %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="bg-info-subtle text-info-emphasis fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 0.9rem;">
+                                    {{ lead.name|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <a href="{% url 'lead_detail' lead.pk %}" class="fw-semibold text-decoration-none text-dark d-block">
+                                        {{ lead.name }}
+                                    </a>
+                                    {% if lead.notes %}
+                                        <span class="text-muted small text-truncate d-inline-block" style="max-width: 220px;">
+                                            {{ lead.notes }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge {{ lead.status_badge_class }} badge-pill">{{ lead.status }}</span>
+                        </td>
+                        <td>
+                            <div>
+                                <a href="mailto:{{ lead.email }}" class="text-decoration-none text-secondary small d-block">
+                                    <i class="bi bi-envelope me-1"></i>{{ lead.email }}
+                                </a>
+                                {% if lead.phone %}
+                                    <span class="text-secondary small d-block">
+                                        <i class="bi bi-telephone me-1"></i>{{ lead.phone }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ lead.source }}</span>
+                        </td>
+                        <td>
+                            {% if lead.customer %}
+                                <a href="{% url 'customer_detail' lead.customer.pk %}" class="text-decoration-none small text-primary fw-semibold">
+                                    <i class="bi bi-building me-1"></i>{{ lead.customer.name }}
+                                </a>
+                            {% else %}
+                                <span class="badge bg-light text-muted border">None</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-muted small">{{ lead.created_at|date:"M d, Y" }}</span>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'lead_detail' lead.pk %}" class="btn btn-outline-secondary" title="View Lead">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'lead_update' lead.pk %}" class="btn btn-outline-secondary" title="Edit Lead">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {% if lead.status != 'Converted' %}
+                                    <form method="post" action="{% url 'lead_convert' lead.pk %}" class="d-inline" onsubmit="return confirm('Convert this lead into a Customer?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-success" title="Convert to Customer">
+                                            <i class="bi bi-check2-circle"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                <a href="{% url 'lead_delete' lead.pk %}" class="btn btn-outline-danger" title="Delete Lead">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="bi bi-funnel display-6 d-block mb-2 text-secondary"></i>
+                                {% if query or status_filter %}
+                                    <h5>No leads matching criteria</h5>
+                                    <p class="small">Try adjusting filters or <a href="{% url 'lead_list' %}">reset filters</a>.</p>
+                                {% else %}
+                                    <h5>No leads in pipeline yet</h5>
+                                    <p class="small">Add a new lead to start tracking potential customer opportunities.</p>
+                                    <a href="{% url 'lead_create' %}" class="btn btn-primary btn-sm mt-1">
+                                        <i class="bi bi-plus-circle"></i> Add First Lead
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

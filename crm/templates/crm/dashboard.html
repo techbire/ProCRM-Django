@@ -1,0 +1,280 @@
+{% extends 'crm/base.html' %}
+
+{% block title %}Dashboard - ProCRM{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">CRM Overview</h3>
+        <p class="text-muted small mb-0">Track key customer metrics, sales performance, and recent activities.</p>
+    </div>
+    <div class="mt-3 mt-md-0 d-flex gap-2">
+        <a href="{% url 'customer_create' %}" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+            <i class="bi bi-person-plus"></i> Add Customer
+        </a>
+        <a href="{% url 'lead_create' %}" class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+            <i class="bi bi-plus-circle"></i> Add Lead
+        </a>
+    </div>
+</div>
+
+<!-- ==============================================================================
+     STATISTICS CARDS
+     ============================================================================== -->
+<div class="row g-3 mb-4">
+    <!-- Total Customers -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="crm-card crm-stat-card p-3 mb-0">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Total Customers</span>
+                    <h2 class="fw-bold text-dark mb-0 mt-1">{{ total_customers }}</h2>
+                </div>
+                <div class="crm-stat-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+            <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between small text-muted">
+                <a href="{% url 'customer_list' %}" class="text-decoration-none text-primary fw-semibold">View all customers &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Leads -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="crm-card crm-stat-card p-3 mb-0">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Total Leads</span>
+                    <h2 class="fw-bold text-dark mb-0 mt-1">{{ total_leads }}</h2>
+                </div>
+                <div class="crm-stat-icon bg-info-subtle text-info">
+                    <i class="bi bi-funnel-fill"></i>
+                </div>
+            </div>
+            <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between small text-muted">
+                <a href="{% url 'lead_list' %}" class="text-decoration-none text-info fw-semibold">View all leads &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Leads -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="crm-card crm-stat-card p-3 mb-0">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Active Leads</span>
+                    <h2 class="fw-bold text-warning-emphasis mb-0 mt-1">{{ active_leads }}</h2>
+                </div>
+                <div class="crm-stat-icon bg-warning-subtle text-warning">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+            </div>
+            <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between small text-muted">
+                <span>In Pipeline (New/Contacted/Interested)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Converted Leads -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="crm-card crm-stat-card p-3 mb-0">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Converted Leads</span>
+                    <h2 class="fw-bold text-success mb-0 mt-1">{{ converted_leads }}</h2>
+                </div>
+                <div class="crm-stat-icon bg-success-subtle text-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+            </div>
+            <div class="mt-3 pt-2 border-top d-flex align-items-center justify-content-between small text-muted">
+                <span class="badge bg-success-subtle text-success border border-success-subtle">{{ conversion_rate }}% Conversion Rate</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==============================================================================
+     RECENT LEADS & CUSTOMERS SECTION
+     ============================================================================== -->
+<div class="row g-4 mb-4">
+    <!-- Recent Leads -->
+    <div class="col-lg-7">
+        <div class="crm-card h-100 mb-0">
+            <div class="crm-card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-funnel text-primary"></i>
+                    <h6 class="fw-bold mb-0 text-dark">Recent Leads</h6>
+                </div>
+                <a href="{% url 'lead_list' %}" class="btn btn-outline-secondary btn-sm py-0 px-2 small">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table crm-table">
+                    <thead>
+                        <tr>
+                            <th>Lead Name</th>
+                            <th>Status</th>
+                            <th>Source</th>
+                            <th>Customer</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lead in recent_leads %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'lead_detail' lead.pk %}" class="fw-semibold text-decoration-none text-dark">
+                                        {{ lead.name }}
+                                    </a>
+                                    <div class="text-muted small">{{ lead.email }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge {{ lead.status_badge_class }} badge-pill">{{ lead.status }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ lead.source }}</span>
+                                </td>
+                                <td>
+                                    {% if lead.customer %}
+                                        <a href="{% url 'customer_detail' lead.customer.pk %}" class="text-decoration-none small text-primary">
+                                            {{ lead.customer.name }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted small">None</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'lead_detail' lead.pk %}" class="btn btn-sm btn-light border py-1 px-2" title="View Lead">
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-4 d-block mb-1"></i>
+                                    No leads recorded yet.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Customers -->
+    <div class="col-lg-5">
+        <div class="crm-card h-100 mb-0">
+            <div class="crm-card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-people text-primary"></i>
+                    <h6 class="fw-bold mb-0 text-dark">Recent Customers</h6>
+                </div>
+                <a href="{% url 'customer_list' %}" class="btn btn-outline-secondary btn-sm py-0 px-2 small">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table crm-table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Company</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in recent_customers %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'customer_detail' customer.pk %}" class="fw-semibold text-decoration-none text-dark">
+                                        {{ customer.name }}
+                                    </a>
+                                    <div class="text-muted small">{{ customer.email }}</div>
+                                </td>
+                                <td>
+                                    <span class="text-muted small">{{ customer.company|default:"—" }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'customer_detail' customer.pk %}" class="btn btn-sm btn-light border py-1 px-2" title="View Customer">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-4 d-block mb-1"></i>
+                                    No customers added yet.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==============================================================================
+     RECENT ACTIVITIES TIMELINE
+     ============================================================================== -->
+<div class="crm-card mb-0">
+    <div class="crm-card-header">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-clock-history text-primary"></i>
+            <h6 class="fw-bold mb-0 text-dark">Recent Interactions & Notes</h6>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'activity_create' %}" class="btn btn-primary btn-sm py-0 px-2 small d-flex align-items-center gap-1">
+                <i class="bi bi-pencil-square"></i> Log Interaction
+            </a>
+            <a href="{% url 'activity_list' %}" class="btn btn-outline-secondary btn-sm py-0 px-2 small">View All</a>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        {% if recent_activities %}
+            <div class="activity-timeline">
+                {% for act in recent_activities %}
+                    <div class="activity-item">
+                        <div class="activity-badge shadow-sm">
+                            <i class="bi {{ act.icon_class }}"></i>
+                        </div>
+                        <div class="bg-light p-3 rounded-3 border">
+                            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge {{ act.badge_class }}">{{ act.get_activity_type_display }}</span>
+                                    <strong class="text-dark">{{ act.subject }}</strong>
+                                </div>
+                                <span class="text-muted small mt-1 mt-sm-0">
+                                    <i class="bi bi-calendar3 me-1"></i>{{ act.date|date:"M d, Y, h:i A" }}
+                                </span>
+                            </div>
+                            <div class="small text-secondary mb-2">
+                                Customer: <a href="{% url 'customer_detail' act.customer.pk %}" class="text-primary text-decoration-none fw-semibold">{{ act.customer.name }}</a>
+                                {% if act.lead %}
+                                    &nbsp;|&nbsp; Lead: <a href="{% url 'lead_detail' act.lead.pk %}" class="text-decoration-none text-muted">{{ act.lead.name }}</a>
+                                {% endif %}
+                                {% if act.created_by %}
+                                    &nbsp;|&nbsp; By: <span class="fw-semibold">{{ act.created_by.username }}</span>
+                                {% endif %}
+                            </div>
+                            <p class="mb-0 text-dark small" style="white-space: pre-line;">{{ act.notes }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-chat-square-text fs-3 d-block mb-1"></i>
+                No interaction activities recorded yet.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
